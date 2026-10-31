@@ -172,6 +172,8 @@ const params = new URLSearchParams(location.search);
 const requestedTime = Number(params.get('t'));
 if (params.has('t') && Number.isFinite(requestedTime)) {
   renderFrame(requestedTime);
+} else if (params.has('manual')) {
+  renderFrame(0);
 } else {
   const start = performance.now();
   function animate(now) {
@@ -182,11 +184,5 @@ if (params.has('t') && Number.isFinite(requestedTime)) {
   requestAnimationFrame(animate);
 }
 
-window.addEventListener('resize', () => {
-  const width = mount.clientWidth || W;
-  const height = mount.clientHeight || H;
-  renderer.setSize(width, height, false);
-  composer.setSize(width, height);
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
-});
+// Keep the drawing buffer fixed at 1080×1920. CSS scales the preview on smaller screens;
+ // this preserves the exact export resolution and camera framing.
