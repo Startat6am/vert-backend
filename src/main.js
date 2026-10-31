@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { gsap } from 'gsap';
+import { createNodeMaterial, createEnergyLineMaterial, createAtmosphereMaterial } from './shaders.js';
 import './style.css';
 
 const DURATION = 40;
@@ -23,6 +24,8 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.35;
 mount.appendChild(renderer.domElement);
 
+const atmosphere = new THREE.Mesh(new THREE.PlaneGeometry(36, 64), createAtmosphereMaterial());
+atmosphere.position.set(0, 0, -18); scene.add(atmosphere);
 scene.add(new THREE.AmbientLight(0x8daaff, 1.5));
 const key = new THREE.PointLight(0x67dcff, 55, 35); key.position.set(2, 5, 8); scene.add(key);
 const rim = new THREE.PointLight(0x9a65ff, 45, 30); rim.position.set(-5, -2, -5); scene.add(rim);
@@ -59,13 +62,13 @@ tokenLabels.forEach((label, i) => {
 });
 
 // Layered abstract transformer metaphor.
-const nodeMaterial = new THREE.MeshStandardMaterial({ color: 0x8beaff, emissive: 0x27aaff, emissiveIntensity: 1.4, metalness: .2, roughness: .25 });
+
 const nodes = [];
 const links = [];
 for (let layer = 0; layer < 5; layer++) {
   const layerNodes = [];
   for (let n = 0; n < 7; n++) {
-    const mesh = new THREE.Mesh(new THREE.IcosahedronGeometry(.16 + (n % 3) * .035, 2), nodeMaterial.clone());
+    const mesh = new THREE.Mesh(new THREE.IcosahedronGeometry(.16 + (n % 3) * .035, 2), createNodeMaterial());
     mesh.position.set((layer - 2) * 2.15, (n - 3) * .82 + Math.sin(layer * 2 + n) * .18, Math.sin(layer * 7 + n * 3) * .75);
     networkGroup.add(mesh); nodes.push(mesh); layerNodes.push(mesh);
   }
@@ -74,7 +77,7 @@ for (let layer = 0; layer < 5; layer++) {
     layerNodes.forEach((a, ai) => prev.forEach((b, bi) => {
       if ((ai + bi) % 3 === 0 || ai === bi) {
         const geo = new THREE.BufferGeometry().setFromPoints([a.position, b.position]);
-        const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0x386fae, transparent: true, opacity: .35 }));
+        const line = new THREE.Line(geo, createEnergyLineMaterial());
         networkGroup.add(line); links.push(line);
       }
     }));
@@ -120,7 +123,7 @@ tokenMeshes.forEach((mesh, i) => {
 timeline.fromTo(networkGroup.position, { z: -8, scale: .65 }, { z: 0, scale: 1, duration: 3.5, ease: 'power2.out' }, 12);
 timeline.fromTo(networkGroup.rotation, { y: -.4 }, { y: .35, duration: 10, ease: 'sine.inOut' }, 12);
 nodes.forEach((node, i) => {
-  timeline.to(node.material, { emissiveIntensity: 3.2, duration: .28, yoyo: true, repeat: 3, ease: 'sine.inOut' }, 14 + (i % 9) * .18);
+  timeline.to(node.material.uniforms.uPulse, { value: 2.2, duration: .28, yoyo: true, repeat: 3, ease: 'sine.inOut' }, 14 + (i % 9) * .18);
 });
 timeline.fromTo(outputGroup.scale, { x: .05, y: .05, z: .05 }, { x: 1, y: 1, z: 1, duration: 1.4, ease: 'elastic.out(1,.6)' }, 23);
 timeline.fromTo(answer.material, { opacity: 0 }, { opacity: 1, duration: .8 }, 24);
@@ -131,6 +134,9 @@ timeline.to(world.rotation, { z: .08, duration: 2 }, 33);
 function renderFrame(seconds) {
   const t = THREE.MathUtils.clamp(seconds, 0, DURATION);
   timeline.time(t, false);
+  atmosphere.material.uniforms.uTime.value = t;
+  nodes.forEach(node => { node.material.uniforms.uTime.value = t; });
+  links.forEach(link => { link.material.uniforms.uTime.value = t; });
   const state = [...states].reverse().find(s => t >= s.at) || states[0];
   setCopy(state.tag, state.title, state.sub);
   tokenGroup.visible = t >= 3 && t < 22;
