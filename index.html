@@ -1,54 +1,56 @@
 <!doctype html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#050914" />
-    <meta name="description" content="Как языковая модель превращает текст в ответ — короткое визуальное объяснение." />
-    <title>AI Explained — как ИИ создаёт ответ</title>
-  </head>
-  <body>
-    <main id="stage" aria-label="Полноэкранная анимация о том, как ИИ создаёт ответ">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#05070d" />
+  <meta name="description" content="Кинематографичное объяснение того, как языковая модель создаёт ответ." />
+  <title>AI Explained — Что происходит внутри ИИ?</title>
+</head>
+<body>
+  <main id="stage" aria-label="Вертикальная 3D-анимация о том, как ИИ создаёт ответ">
+    <div class="portrait-frame">
       <div id="canvas"></div>
       <div class="vignette"></div>
-      <section class="copy" aria-live="polite">
-        <p class="eyebrow" id="eyebrow">ВОПРОС</p>
-        <h1 id="headline">Как ИИ создаёт ответ?</h1>
-        <p id="subline">ИИ не читает твои мысли. Тогда как он отвечает?</p>
-      </section>
       <header class="app-header">
-        <span class="brand">AI EXPLAINED</span>
+        <span class="brand">AI EXPLAINED <i> / LAB 01</i></span>
         <span class="header-time" id="timecode">00:00 / 00:40</span>
         <button class="scenario-button" id="scenario-toggle" type="button" aria-label="Открыть сценарий" title="Сценарий">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.75h7l4 4v12.5H7a2 2 0 0 1-2-2v-12.5a2 2 0 0 1 2-2Z"/><path d="M14 3.75v4h4M9 12h6M9 15.5h6"/></svg>
         </button>
       </header>
+      <section class="copy" aria-live="polite">
+        <p class="eyebrow" id="eyebrow">ОДИН ВОПРОС</p>
+        <h1 id="headline">Что происходит внутри ИИ?</h1>
+        <p id="subline">Ты отправил сообщение. Начинается цепочка вычислений.</p>
+      </section>
       <footer class="controls">
-        <div class="progress" aria-label="Прогресс анимации"><i id="progress"></i></div>
+        <div class="progress"><i id="progress"></i></div>
         <button id="play-toggle" type="button" aria-label="Пауза">
           <span id="play-icon" aria-hidden="true">Ⅱ</span><span id="play-label">Пауза</span>
         </button>
       </footer>
-    </main>
-    <div class="modal-backdrop" id="scenario-modal" hidden>
-      <section class="scenario-panel" role="dialog" aria-modal="true" aria-labelledby="scenario-title">
-        <div class="modal-head"><h2 id="scenario-title">Сценарий видео</h2><button id="scenario-close" type="button" aria-label="Закрыть">×</button></div>
-        <div class="scenario-content">
-          <p class="scenario-lead">Как искусственный интеллект понимает, что ты ему пишешь?</p>
-          <h3>Хук · 0–3 сек.</h3>
-          <p>«ИИ не читает твои мысли. Тогда как он вообще отвечает на твои вопросы?»</p>
-          <h3>Токенизация · 3–12 сек.</h3>
-          <p>«Сначала текст разбивается на маленькие элементы — токены. Это могут быть целые слова, части слов или отдельные символы».</p>
-          <h3>Обработка контекста · 12–22 сек.</h3>
-          <p>«Затем трансформер обрабатывает эти элементы и учитывает связи между ними. Так модель использует контекст, чтобы определить, какое продолжение подходит лучше».</p>
-          <h3>Генерация ответа · 22–32 сек.</h3>
-          <p>«Модель вычисляет распределение вероятностей следующих токенов, выбирает один из них и продолжает генерировать ответ шаг за шагом».</p>
-          <h3>Финал · 32–40 сек.</h3>
-          <p>«Так ИИ может написать стихотворение, объяснить физику или создать код. Но убедительный ответ ещё не гарантирует, что он правильный».</p>
-          <p class="scenario-note">Токены → контекст → выбор следующего токена. Правдоподобный ответ не обязательно верен.</p>
-        </div>
-      </section>
     </div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+  </main>
+  <div class="modal-backdrop" id="scenario-modal" hidden>
+    <section class="scenario-panel" role="dialog" aria-modal="true" aria-labelledby="scenario-title">
+      <div class="modal-head"><h2 id="scenario-title">Сценарий · 40 секунд</h2><button id="scenario-close" type="button" aria-label="Закрыть">×</button></div>
+      <div class="scenario-content">
+        <p class="lead">Название: «Что происходит внутри ИИ, когда ты отправляешь сообщение?»</p>
+        <h3>0–4 сек. · Хук</h3>
+        <p>«Ты задаёшь вопрос. Что происходит дальше?» Вопрос вспыхивает в темноте и сжимается в светящееся ядро.</p>
+        <h3>4–11 сек. · Токенизация</h3>
+        <p>«Сначала текст разбивается на токены — слова, части слов или отдельные символы». Фраза «Завтра утром будет солнце» распадается на разные фрагменты.</p>
+        <h3>11–22 сек. · Контекст</h3>
+        <p>«Затем механизм внимания помогает модели учитывать связи между токенами. Контекст влияет на то, какое продолжение подходит лучше». Камера проходит через объём из изогнутых связей и слоёв.</p>
+        <h3>22–31 сек. · Вероятности</h3>
+        <p>«У следующего токена есть несколько возможных вариантов. Модель оценивает их вероятности и выбирает продолжение». Несколько ветвей расходятся в пространстве, одна становится ярче.</p>
+        <h3>31–40 сек. · Вывод</h3>
+        <p>«Так ответ собирается по частям — токен за токеном. Это похоже на мысль, но технически это прогноз следующего токена. И уверенный тон не гарантирует правильность».</p>
+        <p class="note">Визуальная метафора, а не буквальная схема устройства нейросети.</p>
+      </div>
+    </section>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
 </html>
