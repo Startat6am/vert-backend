@@ -281,8 +281,8 @@ tl.fromTo(generationGroup.scale, { x: .01, y: .01, z: .01 }, { x: 1, y: 1, z: 1,
 candidateMeshes.forEach((item, i) => {
   tl.fromTo(item.position, { y: item.position.y - 1.3, z: -3 }, { y: item.position.y, z: -.2, duration: .8 }, 22.25 + i * .16);
 });
-tl.to(candidateMeshes[0].material, { opacity: .24, duration: .35 }, 24.3);
-tl.to(candidateMeshes[2].material, { opacity: .24, duration: .35 }, 24.3);
+tl.to(candidateMeshes[0].userData.materials, { opacity: .24, duration: .35 }, 24.3);
+tl.to(candidateMeshes[2].userData.materials, { opacity: .24, duration: .35 }, 24.3);
 tl.to(candidateMeshes[1].scale, { x: 1.18, y: 1.18, z: 1.18, duration: .55, ease: 'back.out(1.6)' }, 24.35);
 tl.to(candidateMeshes[1].position, { y: 1.55, z: .3, duration: .75 }, 24.8);
 tl.to(answerText.material, { opacity: 0, duration: .01 }, 22);
