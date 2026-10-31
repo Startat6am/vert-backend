@@ -66,7 +66,7 @@ for (let layer = 0; layer < 5; layer++) {
   const layerNodes = [];
   for (let n = 0; n < 7; n++) {
     const mesh = new THREE.Mesh(new THREE.IcosahedronGeometry(.16 + (n % 3) * .035, 2), nodeMaterial.clone());
-    mesh.position.set((layer - 2) * 2.15, (n - 3) * .82 + Math.sin(layer * 2 + n) * .18, (Math.random() - .5) * 1.5);
+    mesh.position.set((layer - 2) * 2.15, (n - 3) * .82 + Math.sin(layer * 2 + n) * .18, Math.sin(layer * 7 + n * 3) * .75);
     networkGroup.add(mesh); nodes.push(mesh); layerNodes.push(mesh);
   }
   if (layer > 0) {
@@ -92,9 +92,9 @@ answer.position.set(0, 0, 1); outputGroup.add(answer);
 const starGeo = new THREE.BufferGeometry();
 const starPositions = new Float32Array(600 * 3);
 for (let i = 0; i < 600; i++) {
-  starPositions[i * 3] = (Math.random() - .5) * 24;
-  starPositions[i * 3 + 1] = (Math.random() - .5) * 40;
-  starPositions[i * 3 + 2] = (Math.random() - .5) * 18 - 4;
+  starPositions[i * 3] = (Math.sin(i * 127.1) * 43758.5453 % 1) * 24;
+  starPositions[i * 3 + 1] = (Math.sin(i * 311.7) * 24634.6345 % 1) * 40;
+  starPositions[i * 3 + 2] = (Math.sin(i * 74.7) * 12515.8731 % 1) * 18 - 4;
 }
 starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
 const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0x7aaeff, size: .035, transparent: true, opacity: .65 }));
