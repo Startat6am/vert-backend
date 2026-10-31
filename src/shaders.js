@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 export function createNodeMaterial() {
   return new THREE.ShaderMaterial({
     uniforms: { uTime: { value: 0 }, uPulse: { value: 1.0 }, uColor: { value: new THREE.Color('#65dcff') } },
