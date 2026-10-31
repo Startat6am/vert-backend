@@ -6,13 +6,15 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0"
+    "preview": "vite preview --host 0.0.0.0",
+    "render": "npm run build && node scripts/render-video.mjs"
   },
   "dependencies": {
     "gsap": "^3.13.0",
     "three": "^0.180.0"
   },
   "devDependencies": {
-    "vite": "^7.1.7"
+    "vite": "^7.1.7",
+    "playwright": "^1.55.0"
   }
 }
