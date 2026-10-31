@@ -46,7 +46,7 @@ body { min-height: 100vh; }
 
 #stage {
   position: relative;
-  width: min(100%, 520px, calc((100dvh - 150px) * 0.5625));
+  width: min(100%, 520px, calc((100dvh - 190px) * 0.5625));
   aspect-ratio: 9 / 16;
   flex: 0 1 auto;
   overflow: hidden;
