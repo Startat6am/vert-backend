@@ -204,7 +204,7 @@ export function create({ THREE, container }) {
     camera.position.lerpVectors(a.p,b.p,e);
     const target=new THREE.Vector3().lerpVectors(a.look,b.look,e);
     camera.lookAt(target);
-    if(t>=12.5){camera.position.set(0,0,mix(16,21,smooth(12.5,15,t)));camera.lookAt(0,0,-18);}
+    if(t>=12.5){const pull=smooth(12.5,15,t);camera.position.set(mix(0,38,pull),0,mix(-30.3,-18,pull));camera.fov=mix(37,44,pull);camera.updateProjectionMatrix();camera.lookAt(0,0,-18);}
   }
 
   const finalOverlay=new THREE.Group();camera.add(finalOverlay);finalOverlay.position.set(0,0,-7.2);
