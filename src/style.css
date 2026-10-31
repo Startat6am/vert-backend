@@ -14,7 +14,7 @@ button{color:inherit}
 .animation-heading{min-width:0;max-width:65%;pointer-events:none}
 .eyebrow{display:block;margin-bottom:5px;color:rgba(184,201,213,.55);font-size:8px;font-weight:500;letter-spacing:.19em}
 .animation-heading h1{overflow:hidden;margin:0;color:rgba(240,244,247,.88);font-size:clamp(12px,3.3vw,15px);line-height:1.25;font-weight:450;letter-spacing:-.015em;text-overflow:ellipsis;white-space:nowrap}
-.header-meta{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.header-meta{display:flex;align-items:center;gap:9px;flex-shrink:0;pointer-events:auto}
 .timecode{color:rgba(202,214,223,.72);font-size:10px;font-weight:400;letter-spacing:.045em;font-variant-numeric:tabular-nums;white-space:nowrap}
 .icon-button{display:grid;place-items:center;width:34px;height:34px;padding:0;border:1px solid rgba(197,215,226,.2);border-radius:50%;color:rgba(220,230,236,.72);background:rgba(12,21,31,.28);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);cursor:pointer;transition:opacity .18s,background .18s}
 .icon-button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
