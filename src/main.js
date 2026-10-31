@@ -178,7 +178,7 @@ function formatTime(seconds) {
   return `00:${String(value).padStart(2, '0')}`;
 }
 
-function renderFrame(seconds) {
+let activeStateIndex = -1;\n\nfunction renderFrame(seconds) {
   const t = THREE.MathUtils.clamp(seconds, 0, DURATION);
   timeline.time(t, false);
   atmosphere.material.uniforms.uTime.value = t;
