@@ -1,3 +1,5 @@
+> **Обязательные требования:** перед созданием или изменением анимации прочитайте [Технические требования к анимации и адаптивности](../ANIMATION_TECHNICAL_REQUIREMENTS.md). Они определяют безопасные границы кадра, адаптивность текста, поведение при resize и обязательную проверку качества.
+
 # Adding an animation
 
 The viewer discovers animation folders automatically. You do not need to edit `src/core`, `src/ui`, or `src/main.js`.
