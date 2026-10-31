@@ -1,37 +1,39 @@
-* { box-sizing: border-box; }
-:root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #050914; color: #f1f5ff; }
-html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #050914; }
-body { min-width: 320px; }
-button { font: inherit; }
-#stage { position: fixed; inset: 0; overflow: hidden; isolation: isolate; background: #050914; cursor: pointer; touch-action: manipulation; }
-#canvas, #canvas canvas, .vignette { position: absolute; inset: 0; width: 100%; height: 100%; }
-#canvas canvas { display: block; }
-.vignette { z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(3,7,16,.52), transparent 24%, transparent 72%, rgba(3,7,16,.55)); }
-.app-header { position: absolute; z-index: 5; top: max(16px, env(safe-area-inset-top)); left: max(18px, env(safe-area-inset-left)); right: max(18px, env(safe-area-inset-right)); display: flex; align-items: center; gap: 14px; min-height: 38px; pointer-events: none; }
-.brand { color: rgba(236,244,255,.88); font-size: 11px; font-weight: 450; letter-spacing: .22em; white-space: nowrap; }
-.header-time { margin-left: auto; color: rgba(191,211,239,.82); font-size: 11px; font-weight: 450; letter-spacing: .08em; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.scenario-button { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid rgba(192,218,244,.22); border-radius: 50%; color: #d8eaff; background: rgba(15,27,46,.48); backdrop-filter: blur(14px); cursor: pointer; pointer-events: auto; -webkit-tap-highlight-color: transparent; }
-.scenario-button svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.45; stroke-linecap: round; stroke-linejoin: round; }
-.copy { position: absolute; z-index: 3; top: clamp(88px, 13vh, 150px); left: 7%; right: 7%; text-align: center; pointer-events: none; }
-.eyebrow { margin: 0 0 13px; color: #91cddd; font-size: clamp(9px, 2.1vw, 12px); letter-spacing: .2em; font-weight: 550; }
-h1 { margin: 0 auto; max-width: 900px; color: #f1f5ff; font-size: clamp(29px, 7vw, 68px); line-height: 1.06; letter-spacing: -.045em; font-weight: 560; text-wrap: balance; overflow-wrap: anywhere; text-shadow: 0 2px 18px rgba(0,0,0,.42); }
-#subline { max-width: 620px; margin: 13px auto 0; color: rgba(198,214,238,.82); font-size: clamp(12px, 2.65vw, 17px); line-height: 1.45; font-weight: 400; text-wrap: balance; text-shadow: 0 2px 14px rgba(0,0,0,.7); }
-.controls { position: absolute; z-index: 5; left: max(18px, env(safe-area-inset-left)); right: max(18px, env(safe-area-inset-right)); bottom: max(20px, env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 16px; pointer-events: none; }
-.progress { position: relative; height: 3px; flex: 1; overflow: hidden; border-radius: 99px; background: rgba(181,205,236,.25); }
-.progress i { display: block; width: 0; height: 100%; border-radius: inherit; background: #91d7e9; box-shadow: 0 0 9px rgba(110,190,220,.35); }
-#play-toggle { min-width: 112px; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; padding: 0 15px; border: 1px solid rgba(184,214,242,.23); border-radius: 999px; color: #e9f3ff; background: rgba(14,27,46,.56); backdrop-filter: blur(14px); font-size: 12px; font-weight: 450; cursor: pointer; pointer-events: auto; -webkit-tap-highlight-color: transparent; }
-#play-toggle:active, .scenario-button:active { transform: scale(.97); }
-#play-icon { color: #9bd9e9; font-size: 13px; }
-.modal-backdrop { position: fixed; z-index: 20; inset: 0; display: grid; place-items: center; padding: max(18px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom)); background: rgba(2,6,14,.72); backdrop-filter: blur(12px); }
-.modal-backdrop[hidden] { display: none; }
-.scenario-panel { width: min(100%, 560px); max-height: min(82dvh, 760px); display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(167,203,233,.2); border-radius: 18px; background: rgba(10,19,34,.97); box-shadow: 0 24px 90px rgba(0,0,0,.48); }
-.modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px 14px; border-bottom: 1px solid rgba(167,203,233,.13); }
-.modal-head h2 { margin: 0; font-size: 16px; font-weight: 500; }
-#scenario-close { width: 32px; height: 32px; border: 0; border-radius: 50%; color: #dceaff; background: rgba(145,174,210,.12); font-size: 23px; cursor: pointer; }
-.scenario-content { overflow-y: auto; padding: 16px 20px 22px; color: #c1cfe3; font-size: 13px; line-height: 1.58; overscroll-behavior: contain; }
-.scenario-content p { margin: 7px 0 14px; }
-.scenario-content h3 { margin: 18px 0 5px; color: #9bd5e4; font-size: 11px; font-weight: 550; letter-spacing: .1em; text-transform: uppercase; }
-.scenario-content .scenario-lead { color: #f0f5ff; font-size: 16px; }
-.scenario-note { padding-top: 12px; border-top: 1px solid rgba(167,203,233,.13); color: #8fa8c8; }
-@media (max-height: 620px) { .copy { top: 78px; } .eyebrow { margin-bottom: 8px; } #subline { margin-top: 8px; } .controls { bottom: max(12px, env(safe-area-inset-bottom)); } #play-toggle { min-height: 34px; } }
-@media (prefers-reduced-motion: reduce) { #play-toggle, .scenario-button { transition: none; } }
+*{box-sizing:border-box}
+:root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#05070d;color:#f4f5f8}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#05070d}
+body{min-width:320px}
+button{font:inherit}
+#stage{position:fixed;inset:0;overflow:hidden;isolation:isolate;background:radial-gradient(ellipse at center,#111d2b 0%,#05070d 68%);display:grid;place-items:center}
+.portrait-frame{position:relative;width:min(100vw,56.25dvh);height:min(100dvh,177.7778vw);aspect-ratio:9/16;overflow:hidden;isolation:isolate;background:#05070d;box-shadow:0 0 90px rgba(0,0,0,.55)}
+#canvas,#canvas canvas,.vignette{position:absolute;inset:0;width:100%;height:100%}
+#canvas canvas{display:block}
+.vignette{z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(3,5,10,.62),transparent 22%,transparent 73%,rgba(3,5,10,.62))}
+.app-header{position:absolute;z-index:5;top:max(14px,env(safe-area-inset-top));left:18px;right:18px;display:flex;align-items:center;gap:10px;min-height:36px;pointer-events:none}
+.brand{color:rgba(236,241,247,.88);font-size:9px;font-weight:500;letter-spacing:.19em;white-space:nowrap}
+.brand i{color:rgba(161,184,199,.62);font-style:normal;letter-spacing:.1em}
+.header-time{margin-left:auto;color:rgba(199,211,224,.8);font-size:10px;font-weight:450;letter-spacing:.08em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.scenario-button{width:34px;height:34px;display:grid;place-items:center;border:1px solid rgba(200,218,232,.24);border-radius:50%;color:#e2eaf0;background:rgba(13,23,34,.5);backdrop-filter:blur(12px);cursor:pointer;pointer-events:auto}
+.scenario-button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.copy{position:absolute;z-index:3;top:clamp(82px,12.5%,138px);left:8%;right:8%;text-align:center;pointer-events:none}
+.eyebrow{margin:0 0 11px;color:#d6a17f;font-size:clamp(8px,2vw,10px);letter-spacing:.2em;font-weight:600}
+h1{margin:0 auto;max-width:100%;color:#f1f2f4;font-size:clamp(25px,7.2vw,43px);line-height:1.08;letter-spacing:-.045em;font-weight:520;text-wrap:balance;overflow-wrap:anywhere;text-shadow:0 2px 18px rgba(0,0,0,.55)}
+#subline{max-width:95%;margin:11px auto 0;color:rgba(198,211,220,.82);font-size:clamp(11px,3vw,14px);line-height:1.42;font-weight:400;text-wrap:balance;text-shadow:0 2px 12px rgba(0,0,0,.8)}
+.controls{position:absolute;z-index:5;left:18px;right:18px;bottom:max(16px,env(safe-area-inset-bottom));display:flex;align-items:center;gap:13px;pointer-events:none}
+.progress{position:relative;height:2px;flex:1;overflow:hidden;border-radius:99px;background:rgba(191,210,222,.28)}
+.progress i{display:block;width:0;height:100%;border-radius:inherit;background:#e3a27c;box-shadow:0 0 8px rgba(227,162,124,.45)}
+#play-toggle{min-width:100px;min-height:38px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 13px;border:1px solid rgba(201,219,230,.25);border-radius:999px;color:#edf2f5;background:rgba(13,23,34,.58);backdrop-filter:blur(12px);font-size:11px;font-weight:450;cursor:pointer;pointer-events:auto}
+#play-icon{color:#e4a37c;font-size:12px}
+#play-toggle:active,.scenario-button:active{transform:scale(.97)}
+.modal-backdrop{position:fixed;z-index:20;inset:0;display:grid;place-items:center;padding:18px;background:rgba(2,5,10,.78);backdrop-filter:blur(12px)}
+.modal-backdrop[hidden]{display:none}
+.scenario-panel{width:min(100%,520px);max-height:min(84dvh,760px);display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(179,207,220,.2);border-radius:18px;background:rgba(10,17,26,.98);box-shadow:0 24px 90px rgba(0,0,0,.5)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 19px 13px;border-bottom:1px solid rgba(179,207,220,.13)}
+.modal-head h2{margin:0;font-size:15px;font-weight:500}
+#scenario-close{width:32px;height:32px;border:0;border-radius:50%;color:#e5edf2;background:rgba(145,174,190,.12);font-size:23px;cursor:pointer}
+.scenario-content{overflow-y:auto;padding:14px 19px 21px;color:#c4d0d8;font-size:12px;line-height:1.6;overscroll-behavior:contain}
+.scenario-content p{margin:6px 0 12px}
+.scenario-content h3{margin:17px 0 4px;color:#e0a57f;font-size:10px;font-weight:600;letter-spacing:.11em;text-transform:uppercase}
+.scenario-content .lead{color:#f0f3f5;font-size:15px}
+.scenario-content .note{padding-top:11px;border-top:1px solid rgba(179,207,220,.13);color:#8fa7b2}
+@media(max-height:620px){.copy{top:70px}.eyebrow{margin-bottom:7px}#subline{margin-top:7px}.controls{bottom:10px}#play-toggle{min-height:33px}}
+@media(prefers-reduced-motion:reduce){#play-toggle,.scenario-button{transition:none}}
