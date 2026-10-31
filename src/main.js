@@ -1,6 +1,10 @@
 import * as THREE from 'three';
 import { gsap } from 'gsap';
 import { createNodeMaterial, createEnergyLineMaterial, createAtmosphereMaterial } from './shaders.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import './style.css';
 
 const DURATION = 40;
@@ -17,12 +21,21 @@ scene.fog = new THREE.FogExp2(0x070914, 0.035);
 const camera = new THREE.PerspectiveCamera(42, 9 / 16, 0.1, 100);
 camera.position.set(0, 0, 13);
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+// Fixed 1080x1920 drawing buffer: predictable output and lower mobile GPU pressure.
+renderer.setPixelRatio(1);
 renderer.setSize(W, H, false);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.35;
 mount.appendChild(renderer.domElement);
+
+const composer = new EffectComposer(renderer);
+composer.setPixelRatio(1);
+composer.setSize(W, H);
+composer.addPass(new RenderPass(scene, camera));
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(W, H), 0.9, 0.62, 0.16);
+composer.addPass(bloomPass);
+composer.addPass(new OutputPass());
 
 const atmosphere = new THREE.Mesh(new THREE.PlaneGeometry(36, 64), createAtmosphereMaterial());
 atmosphere.position.set(0, 0, -18); scene.add(atmosphere);
@@ -147,7 +160,7 @@ function renderFrame(seconds) {
   camera.position.z = t >= 32 ? 11.5 : 13;
   camera.lookAt(0, 0, 0);
   stars.rotation.y = t * .008;
-  renderer.render(scene, camera);
+  composer.render();
   progress.style.width = `${(t / DURATION) * 100}%`;
   timecode.textContent = `00:${String(Math.floor(t)).padStart(2, '0')}`;
   return renderer.domElement;
@@ -173,6 +186,7 @@ window.addEventListener('resize', () => {
   const width = mount.clientWidth || W;
   const height = mount.clientHeight || H;
   renderer.setSize(width, height, false);
+  composer.setSize(width, height);
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
 });
