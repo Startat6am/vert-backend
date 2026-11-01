@@ -13,7 +13,7 @@ export function create({ THREE, container }) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.NeutralToneMapping;
   renderer.toneMappingExposure = 1.12;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  renderer.setPixelRatio(1);
   container.appendChild(renderer.domElement);
 
   // The animation is authored in landscape 16:9, then the canvas is rotated
@@ -79,7 +79,7 @@ export function create({ THREE, container }) {
     const c=document.createElement('canvas'); c.width=1400; c.height=Math.round(1400*h/w);
     const ctx=c.getContext('2d');
     draw(ctx,c.width,c.height);
-    const tex=new THREE.CanvasTexture(c); tex.colorSpace=THREE.SRGBColorSpace; tex.anisotropy=8;
+    const tex=new THREE.CanvasTexture(c); tex.colorSpace=THREE.SRGBColorSpace; tex.anisotropy=2;
     const mat=new THREE.MeshBasicMaterial({map:tex,transparent:true,side:THREE.DoubleSide,depthWrite:false});
     const mesh=new THREE.Mesh(new THREE.PlaneGeometry(w-.18,h-.16),mat);
     mesh.position.z=.17;
@@ -166,10 +166,10 @@ export function create({ THREE, container }) {
   const headGlow=new THREE.PointLight(0xff8a4c,8,5);scene.add(headGlow);
 
   const deco=[];
-  for(let i=0;i<38;i++){
+  for(let i=0;i<20;i++){
     const type=i%3, size=.07+seeded(i)*.17;
     let geo=type===0?new THREE.SphereGeometry(size,16,12):type===1?new THREE.TorusGeometry(size*1.6,size*.12,8,24):new THREE.IcosahedronGeometry(size,1);
-    const mat=new THREE.MeshPhysicalMaterial({color:[0x9bb9ff,0xffa1cb,0xffb27c][type],metalness:.16,roughness:.17,transmission:.68,thickness:.8,ior:1.32,dispersion:.12,clearcoat:1});
+    const mat=new THREE.MeshStandardMaterial({color:[0x9bb9ff,0xffa1cb,0xffb27c][type],metalness:.22,roughness:.24,emissive:[0x101b38,0x301020,0x301808][type],emissiveIntensity:.35});
     const m=new THREE.Mesh(geo,mat);
     m.position.set((seeded(i+50)-.5)*17,(seeded(i+90)-.5)*9,-seeded(i+140)*43-2);
     m.rotation.set(seeded(i+170)*6,seeded(i+200)*6,0);scene.add(m);deco.push(m);
@@ -221,6 +221,7 @@ export function create({ THREE, container }) {
   finalOverlay.visible=false;
 
   let disposed=false;
+  let lastChatState='';
   function resize(width,height){
     // renderer's logical landscape dimensions are the inverse of the portrait host.
     const portrait=height>=width;
@@ -242,19 +243,22 @@ export function create({ THREE, container }) {
     tube.geometry.setDrawRange(0,drawCount);
     const p=path.getPointAt(progress);head.position.copy(p);headGlow.position.copy(p);
     const scene1In=1-smooth(2.7,3,t),scene2In=smooth(2.8,3.15,t)*(1-smooth(5.7,6,t)),scene3In=smooth(5.8,6.2,t)*(1-smooth(9.5,10,t)),scene4In=smooth(9.8,10.2,t)*(1-smooth(12.35,12.65,t));
-    chatUI.draw(chatUI.ctx,chatUI.canvas.width,chatUI.canvas.height);
-    // Redraw the live chat line and cursor deterministically.
+    // Update the chat texture only when the typed character/cursor state changes.
     const c=chatUI.ctx,w=chatUI.canvas.width,h=chatUI.canvas.height;
-    c.clearRect(0,0,w,h);border(c,w,h,32);label(c,'CLAUDE',54,58,28,'rgba(255,255,255,.64)',650);
     const sentence='Build me a habit tracker with streaks.';
     const n=Math.floor(clamp((t-.25)/1.45)*sentence.length);
-    c.save();c.beginPath();c.rect(40,105,w-190,90);c.clip();label(c,sentence.slice(0,n),54,155,39,'#fff',520);
-    if(t<1.85&&Math.floor(t*3)%2===0){const width=c.measureText(sentence.slice(0,n)).width;c.fillStyle='#ff8a4c';c.fillRect(54+width+5,130,3,48);}c.restore();
-    c.fillStyle=t>1.9?'#ff8a4c':'rgba(255,138,76,.38)';c.beginPath();c.roundRect(w-112,h-104,64,64,18);c.fill();label(c,'↑',w-80,h-70,46,'#17131a',700,'center');
-    chatUI.texture.needsUpdate=true;
+    const cursorOn=t<1.85&&Math.floor(t*3)%2===0;
+    const sendOn=t>1.9;
+    const chatState=n+'|'+cursorOn+'|'+sendOn;
+    if(chatState!==lastChatState){
+      lastChatState=chatState;c.clearRect(0,0,w,h);border(c,w,h,32);label(c,'CLAUDE',54,58,28,'rgba(255,255,255,.64)',650);
+      c.save();c.beginPath();c.rect(40,105,w-190,90);c.clip();label(c,sentence.slice(0,n),54,155,39,'#fff',520);
+      if(cursorOn){const tw=c.measureText(sentence.slice(0,n)).width;c.fillStyle='#ff8a4c';c.fillRect(54+tw+5,130,3,48);}c.restore();
+      c.fillStyle=sendOn?'#ff8a4c':'rgba(255,138,76,.38)';c.beginPath();c.roundRect(w-112,h-104,64,64,18);c.fill();label(c,'↑',w-80,h-70,46,'#17131a',700,'center');
+      chatUI.texture.needsUpdate=true;
+    }
     reply.scale.setScalar(smooth(2.15,2.65,t));reply.position.y=-1.92+smooth(2.1,2.8,t)*.28;
-    replyUI.texture.needsUpdate=true;
-    tasks.forEach((task,i)=>{const done=smooth(3.35+i*.38,3.7+i*.38,t);task.g.position.x=mix(1.2,0, smooth(3.05+i*.1,3.55+i*.1,t));task.g.position.z=-i*.12+Math.sin(t*2+i)*.025;const cx=task.ui.ctx,cw=task.ui.canvas.width,ch=task.ui.canvas.height;cx.clearRect(0,0,cw,ch);border(cx,cw,ch,15);label(cx,taskNames[i],48,ch/2,25,'#fff',520);if(done>.01){cx.strokeStyle='#8ef0b2';cx.lineWidth=5;cx.beginPath();cx.arc(cw-54,ch/2,17,-Math.PI/2,-Math.PI/2+Math.PI*2*done);cx.stroke();if(done>.95){cx.beginPath();cx.moveTo(cw-65,ch/2);cx.lineTo(cw-56,ch/2+9);cx.lineTo(cw-40,ch/2-10);cx.stroke();cx.beginPath();cx.moveTo(48,ch/2+15);cx.lineTo(cw-100,ch/2+15);cx.strokeStyle='rgba(255,255,255,.5)';cx.lineWidth=2;cx.stroke();}}task.ui.texture.needsUpdate=true;task.g.position.y=1.18-i*.62+Math.sin(smooth(3,3.5,t)*Math.PI)*.15;});
+    tasks.forEach((task,i)=>{const done=t>=3.7+i*.38;task.g.position.x=mix(1.2,0,smooth(3.05+i*.1,3.55+i*.1,t));task.g.position.z=-i*.12;task.g.position.y=1.18-i*.62+Math.sin(smooth(3,3.5,t)*Math.PI)*.15;if(done!==task.done){task.done=done;const cx=task.ui.ctx,cw=task.ui.canvas.width,ch=task.ui.canvas.height;cx.clearRect(0,0,cw,ch);border(cx,cw,ch,15);label(cx,taskNames[i],48,ch/2,25,'#fff',520);if(done){cx.strokeStyle='#8ef0b2';cx.lineWidth=5;cx.beginPath();cx.moveTo(cw-65,ch/2);cx.lineTo(cw-56,ch/2+9);cx.lineTo(cw-40,ch/2-10);cx.stroke();cx.beginPath();cx.moveTo(48,ch/2+15);cx.lineTo(cw-100,ch/2+15);cx.strokeStyle='rgba(255,255,255,.5)';cx.lineWidth=2;cx.stroke();}task.ui.texture.needsUpdate=true;}});
     fileTiles.forEach((g,i)=>{const a=t*.55+i*Math.PI/3;g.position.x=Math.cos(a)*4.25;g.position.y=Math.sin(a)*1.9;g.rotation.z=Math.sin(t+i)*.12;});
     passed.scale.setScalar(smooth(8.9,9.35,t));
     phone.rotation.y=mix(-.55,0,smooth(10,10.8,t));phone.rotation.z=mix(.16,0,smooth(10,11,t));phone.scale.setScalar(smooth(9.9,10.35,t));
