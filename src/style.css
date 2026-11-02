@@ -64,3 +64,18 @@ button{color:inherit}
 .animation-list-empty{padding:18px 8px;color:#9babb4;font-size:12px;text-align:center}
 
 .animation-counter{right:44px}
+
+.animation-list-modal{position:fixed;z-index:12;inset:0;display:grid;place-items:center;padding:18px;background:rgba(2,5,10,.78);backdrop-filter:blur(13px);-webkit-backdrop-filter:blur(13px)}
+.animation-list-modal[hidden]{display:none}
+.animation-list-dialog{width:min(100%,480px);max-height:min(82dvh,680px);display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(179,207,220,.18);border-radius:17px;background:rgba(10,17,26,.98);box-shadow:0 24px 90px rgba(0,0,0,.52)}
+.animation-list-content{overflow-y:auto;padding:8px 12px 14px;overscroll-behavior:contain}
+.animation-list-item{width:100%;display:grid;grid-template-columns:34px minmax(0,1fr) 22px;align-items:center;gap:12px;padding:14px 8px;border:0;border-bottom:1px solid rgba(179,207,220,.1);border-radius:7px;text-align:left;color:#dce5ea;background:transparent;cursor:pointer;transition:background .16s}
+.animation-list-item:hover,.animation-list-item.is-active{background:rgba(135,169,190,.1)}
+.animation-list-number{color:#8da3b1;font-size:10px;font-variant-numeric:tabular-nums}
+.animation-list-details{min-width:0;display:flex;flex-direction:column;gap:4px}
+.animation-list-title{overflow:hidden;color:#e6edf1;font-size:12px;line-height:1.4;text-overflow:ellipsis}
+.animation-list-duration{color:#8296a2;font-size:10px;font-variant-numeric:tabular-nums}
+.animation-list-arrow{justify-self:end;color:#dba47f;font-size:16px}
+.animation-list-empty{padding:18px 8px;color:#9aabb4;font-size:12px}
+.animation-list-open{position:absolute;right:0;width:34px;height:34px}
+@media(max-width:420px){.transport{gap:15px}.animation-list-open{right:0}}
