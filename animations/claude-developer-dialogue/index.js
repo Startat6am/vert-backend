@@ -151,53 +151,92 @@ function makeDeveloper(scene) {
   return { root, head, eyes, mouth, arms };
 }
 
-function makeCaption(scene) {
+function makeCaption(camera) {
+  // Camera-space HUD: occupies the bottom third of the viewport and stays razor sharp.
   const group = new THREE.Group();
-  scene.add(group);
-  const bg = new THREE.Mesh(
-    new THREE.PlaneGeometry(8.1, 1.65),
-    new THREE.MeshBasicMaterial({ color: 0x071326, transparent: true, opacity: .82, depthWrite: false })
-  );
-  group.add(bg);
+  camera.add(group);
 
   const canvas = document.createElement('canvas');
-  canvas.width = 1536;
-  canvas.height = 320;
+  canvas.width = 2048;
+  canvas.height = 768;
   const ctx = canvas.getContext('2d');
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
-  const text = new THREE.Mesh(
-    new THREE.PlaneGeometry(7.8, 1.48),
-    new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false })
+  texture.generateMipmaps = false;
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.anisotropy = 8;
+
+  const background = new THREE.Mesh(
+    new THREE.PlaneGeometry(1, 1),
+    new THREE.MeshBasicMaterial({ color: 0x050b18, transparent: false, depthTest: false, depthWrite: false })
   );
-  text.position.z = .02;
-  group.add(text);
+  background.renderOrder = 1000;
+  group.add(background);
+
+  const textMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(1, 1),
+    new THREE.MeshBasicMaterial({ map: texture, transparent: false, depthTest: false, depthWrite: false })
+  );
+  textMesh.position.z = .012;
+  textMesh.renderOrder = 1001;
+  group.add(textMesh);
+
+  const layout = (aspect, fov) => {
+    const distance = 5;
+    const visibleHeight = 2 * Math.tan(THREE.MathUtils.degToRad(fov / 2)) * distance;
+    const visibleWidth = visibleHeight * aspect;
+    const panelHeight = visibleHeight / 3;
+    const panelWidth = visibleWidth * .96;
+    group.position.set(0, -visibleHeight / 3, -distance);
+    background.geometry.dispose();
+    textMesh.geometry.dispose();
+    background.geometry = new THREE.PlaneGeometry(panelWidth, panelHeight);
+    textMesh.geometry = new THREE.PlaneGeometry(panelWidth * .985, panelHeight * .96);
+  };
 
   return {
     group,
+    layout,
     set(line) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#071326';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Pixel-style typeface with a robust local monospace fallback.
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'transparent';
       ctx.fillStyle = line.side === 'claude' ? '#ff9b75' : '#8dcaff';
-      ctx.font = 'bold 34px Arial';
-      ctx.fillText(line.speaker, 768, 48);
+      ctx.font = 'bold 54px "Press Start 2P", "Courier New", monospace';
+      ctx.fillText(line.speaker, 1024, 116);
 
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 47px Arial';
+      ctx.font = 'bold 66px "Press Start 2P", "Courier New", monospace';
       const words = line.text.split(' ');
       const rows = [];
       let row = '';
+      const maxWidth = 1810;
       for (const word of words) {
         const next = row ? row + ' ' + word : word;
-        if (ctx.measureText(next).width > 1400 && row) {
+        if (ctx.measureText(next).width > maxWidth && row) {
           rows.push(row);
           row = word;
         } else row = next;
       }
       if (row) rows.push(row);
-      rows.slice(0, 2).forEach((value, i) => ctx.fillText(value, 768, 142 + i * 70));
+      const visibleRows = rows.slice(0, 3);
+      const lineHeight = 154;
+      const firstY = 390 - ((visibleRows.length - 1) * lineHeight) / 2;
+      visibleRows.forEach((value, i) => ctx.fillText(value, 1024, firstY + i * lineHeight));
       texture.needsUpdate = true;
+    },
+    dispose() {
+      texture.dispose();
+      background.geometry.dispose();
+      textMesh.geometry.dispose();
+      background.material.dispose();
+      textMesh.material.dispose();
     }
   };
 }
@@ -266,7 +305,7 @@ export default {
 
     const claude = makeClaude(scene);
     const developer = makeDeveloper(scene);
-    const caption = makeCaption(scene);
+    const caption = makeCaption(camera);
 
     const resize = (width, height) => {
       const w = Math.max(1, width);
@@ -274,6 +313,7 @@ export default {
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      caption.layout(camera.aspect, camera.fov);
     };
 
     let currentLine = -1;
@@ -334,7 +374,7 @@ export default {
       camera.position.z += (targetZ - camera.position.z) * .045;
       camera.lookAt(Math.sin(t * .16) * .06, isClaude ? -.15 : .2, 0);
 
-      caption.group.position.set(0, 4.25 + Math.sin(t * .22) * .025, 2.6);
+      // Caption remains fixed to the camera; no world-space drift or depth blur.
       renderer.render(scene, camera);
     };
 
@@ -355,6 +395,7 @@ export default {
             });
           }
         });
+        caption.dispose();
         renderer.dispose();
         renderer.domElement.remove();
       }
