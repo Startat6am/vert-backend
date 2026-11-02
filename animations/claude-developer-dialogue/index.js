@@ -281,7 +281,7 @@ export default {
       const t = clamp(time, 0, DURATION);
       const index = Math.min(LINES.length - 1, Math.floor(t / LINE_DURATION));
       const line = LINES[index];
-      const local = t - line.at;
+      const local = t - index * LINE_DURATION;
 
       if (index !== currentLine) {
         currentLine = index;
