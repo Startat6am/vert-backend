@@ -62,3 +62,5 @@ button{color:inherit}
 .animation-list-duration{color:#81939d;font-size:10px;font-variant-numeric:tabular-nums}
 .animation-list-arrow{color:#c79577;font-size:16px}
 .animation-list-empty{padding:18px 8px;color:#9babb4;font-size:12px;text-align:center}
+
+.animation-counter{right:44px}
