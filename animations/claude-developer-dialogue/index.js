@@ -308,6 +308,8 @@ export default {
 
     const camera = new THREE.PerspectiveCamera(38, 9 / 16, .1, 100);
     camera.position.set(0, .25, 14.8);
+    // Add the camera to the scene so its camera-space caption HUD is rendered.
+    scene.add(camera);
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
