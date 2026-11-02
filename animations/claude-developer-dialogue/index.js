@@ -40,6 +40,31 @@ function box(parent, size, color, position, options = {}) {
   return mesh;
 }
 
+function makePixelGradientTexture() {
+  // Low-resolution stepped palette creates an intentionally 8-bit dark-lilac gradient.
+  const canvas = document.createElement('canvas');
+  canvas.width = 96;
+  canvas.height = 96;
+  const ctx = canvas.getContext('2d');
+  const palette = ['#100b20', '#17102b', '#211438', '#2b1944', '#351f50', '#24153d'];
+  for (let y = 0; y < 96; y++) {
+    for (let x = 0; x < 96; x++) {
+      const dx = (x - 42) / 68;
+      const dy = (y - 34) / 72;
+      const glow = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy));
+      const band = Math.min(5, Math.max(0, Math.floor((y / 96) * 4 + glow * 2)));
+      ctx.fillStyle = palette[band];
+      ctx.fillRect(x, y, 1, 1);
+    }
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.magFilter = THREE.NearestFilter;
+  texture.minFilter = THREE.NearestFilter;
+  texture.generateMipmaps = false;
+  return texture;
+}
+
 function makeCodeTexture() {
   const canvas = document.createElement('canvas');
   canvas.width = 1024;
@@ -163,9 +188,9 @@ function makeCaption(camera) {
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.generateMipmaps = false;
-  texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter;
-  texture.anisotropy = 8;
+  // Nearest-neighbour sampling keeps the pixel lettering hard-edged instead of soft.
+  texture.minFilter = THREE.NearestFilter;
+  texture.magFilter = THREE.NearestFilter;
 
   const background = new THREE.Mesh(
     new THREE.PlaneGeometry(1, 1),
@@ -182,6 +207,19 @@ function makeCaption(camera) {
   textMesh.renderOrder = 1001;
   group.add(textMesh);
 
+  // Pixelify Sans includes Cyrillic glyphs; fallback remains monospace if offline.
+  if (!document.querySelector('link[data-dialogue-pixel-font]')) {
+    const fontLink = document.createElement('link');
+    fontLink.rel = 'stylesheet';
+    fontLink.href = 'https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@600;700&display=swap';
+    fontLink.dataset.dialoguePixelFont = 'true';
+    document.head.appendChild(fontLink);
+  }
+  let lastLine = null;
+  document.fonts?.load('700 76px "Pixelify Sans"').then(() => {
+    if (lastLine) drawLine(lastLine);
+  }).catch(() => {});
+
   const layout = (aspect, fov) => {
     const distance = 5;
     const visibleHeight = 2 * Math.tan(THREE.MathUtils.degToRad(fov / 2)) * distance;
@@ -195,10 +233,7 @@ function makeCaption(camera) {
     textMesh.geometry = new THREE.PlaneGeometry(panelWidth * .985, panelHeight * .96);
   };
 
-  return {
-    group,
-    layout,
-    set(line) {
+  const drawLine = (line) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = '#071326';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -208,11 +243,11 @@ function makeCaption(camera) {
       ctx.textBaseline = 'middle';
       ctx.shadowColor = 'transparent';
       ctx.fillStyle = line.side === 'claude' ? '#ff9b75' : '#8dcaff';
-      ctx.font = 'bold 54px "Press Start 2P", "Courier New", monospace';
+      ctx.font = '700 64px "Pixelify Sans", "Press Start 2P", monospace';
       ctx.fillText(line.speaker, 1024, 116);
 
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 66px "Press Start 2P", "Courier New", monospace';
+      ctx.font = '700 76px "Pixelify Sans", "Press Start 2P", monospace';
       const words = line.text.split(' ');
       const rows = [];
       let row = '';
@@ -230,6 +265,14 @@ function makeCaption(camera) {
       const firstY = 390 - ((visibleRows.length - 1) * lineHeight) / 2;
       visibleRows.forEach((value, i) => ctx.fillText(value, 1024, firstY + i * lineHeight));
       texture.needsUpdate = true;
+  };
+
+  return {
+    group,
+    layout,
+    set(line) {
+      lastLine = line;
+      drawLine(line);
     },
     dispose() {
       texture.dispose();
@@ -291,6 +334,15 @@ export default {
     wall.position.set(0, 0, -5.5);
     scene.add(wall);
 
+    const developerBackdropTexture = makePixelGradientTexture();
+    const developerBackdrop = new THREE.Mesh(
+      new THREE.PlaneGeometry(19, 14),
+      new THREE.MeshBasicMaterial({ map: developerBackdropTexture })
+    );
+    developerBackdrop.position.set(0, 0, -5.15);
+    developerBackdrop.visible = true;
+    scene.add(developerBackdrop);
+
     const floor = new THREE.Mesh(
       new THREE.PlaneGeometry(18, 12),
       new THREE.MeshStandardMaterial({ color: 0x10132c, roughness: .55, metalness: .15 })
@@ -332,6 +384,9 @@ export default {
       // Hard single-character cut: the non-speaking character is never rendered in this shot.
       claude.root.visible = isClaude;
       developer.root.visible = !isClaude;
+      // Claude keeps the code-wall backdrop; developer gets the stepped dark-lilac 8-bit gradient.
+      wall.visible = isClaude;
+      developerBackdrop.visible = !isClaude;
       const active = isClaude ? claude : developer;
 
       if (isClaude) {
