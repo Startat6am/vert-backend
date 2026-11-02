@@ -208,17 +208,25 @@ function makeCaption(camera) {
   group.add(textMesh);
 
   // Pixelify Sans includes Cyrillic glyphs; fallback remains monospace if offline.
-  if (!document.querySelector('link[data-dialogue-pixel-font]')) {
-    const fontLink = document.createElement('link');
+  let lastLine = null;
+  const loadPixelFont = () => {
+    document.fonts?.load('700 76px "Pixelify Sans"').then(() => {
+      if (lastLine) drawLine(lastLine);
+    }).catch(() => {});
+  };
+  let fontLink = document.querySelector('link[data-dialogue-pixel-font]');
+  if (!fontLink) {
+    fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';
     fontLink.href = 'https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@600;700&display=swap';
     fontLink.dataset.dialoguePixelFont = 'true';
+    fontLink.addEventListener('load', loadPixelFont, { once: true });
     document.head.appendChild(fontLink);
+  } else if (fontLink.sheet) {
+    loadPixelFont();
+  } else {
+    fontLink.addEventListener('load', loadPixelFont, { once: true });
   }
-  let lastLine = null;
-  document.fonts?.load('700 76px "Pixelify Sans"').then(() => {
-    if (lastLine) drawLine(lastLine);
-  }).catch(() => {});
 
   const layout = (aspect, fov) => {
     const distance = 5;
