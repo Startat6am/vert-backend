@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
-const DURATION = 36;
-const LINE_DURATION = 3;
+const DURATION = 48;
+const LINE_DURATION = 4;
 const LINES = [
   { speaker: 'РАЗРАБОТЧИК', side: 'developer', text: 'Claude, можешь исправить одну маленькую ошибку?' },
   { speaker: 'CLAUDE', side: 'claude', text: 'Конечно. Я уже переписал весь проект.' },
