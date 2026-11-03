@@ -192,16 +192,9 @@ function makeCaption(camera) {
   texture.minFilter = THREE.NearestFilter;
   texture.magFilter = THREE.NearestFilter;
 
-  const background = new THREE.Mesh(
-    new THREE.PlaneGeometry(1, 1),
-    new THREE.MeshBasicMaterial({ color: 0x050b18, transparent: false, depthTest: false, depthWrite: false })
-  );
-  background.renderOrder = 1000;
-  group.add(background);
-
   const textMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(1, 1),
-    new THREE.MeshBasicMaterial({ map: texture, transparent: false, depthTest: false, depthWrite: false })
+    new THREE.MeshBasicMaterial({ map: texture, transparent: true, alphaTest: 0.01, depthTest: false, depthWrite: false })
   );
   textMesh.position.z = .012;
   textMesh.renderOrder = 1001;
@@ -235,16 +228,12 @@ function makeCaption(camera) {
     const panelHeight = visibleHeight / 3;
     const panelWidth = visibleWidth * .96;
     group.position.set(0, -visibleHeight / 3, -distance);
-    background.geometry.dispose();
     textMesh.geometry.dispose();
-    background.geometry = new THREE.PlaneGeometry(panelWidth, panelHeight);
     textMesh.geometry = new THREE.PlaneGeometry(panelWidth * .985, panelHeight * .96);
   };
 
   const drawLine = (line) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#071326';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Pixel-style typeface with a robust local monospace fallback.
       ctx.textAlign = 'center';
@@ -284,9 +273,7 @@ function makeCaption(camera) {
     },
     dispose() {
       texture.dispose();
-      background.geometry.dispose();
       textMesh.geometry.dispose();
-      background.material.dispose();
       textMesh.material.dispose();
     }
   };
@@ -434,10 +421,16 @@ export default {
       // Floating camera, with a short, controlled push-in only on the shouted eleventh line.
       const tension = index === 10 ? smooth(.35, .75, local) * (1 - smooth(1.65, 2.4, local)) : 0;
       const targetZ = 14.8 - tension * 1.25;
-      camera.position.x = Math.sin(t * .2) * .12;
-      camera.position.y = .25 + Math.sin(t * .27) * .08;
-      camera.position.z += (targetZ - camera.position.z) * .045;
-      camera.lookAt(Math.sin(t * .16) * .06, isClaude ? -.15 : .2, 0);
+      // Gentle floating drift plus a distinct 15-degree three-quarter angle per speaker.
+      const angle = THREE.MathUtils.degToRad(isClaude ? 15 : -15);
+      const distance = targetZ;
+      const floatX = Math.sin(t * .2) * .10;
+      const floatY = .25 + Math.sin(t * .27) * .065;
+      const targetY = isClaude ? -.15 : .2;
+      camera.position.x = Math.sin(angle) * distance + floatX;
+      camera.position.y = floatY;
+      camera.position.z = Math.cos(angle) * distance;
+      camera.lookAt(Math.sin(t * .16) * .045, targetY + Math.sin(t * .23) * .025, 0);
 
       // Caption remains fixed to the camera; no world-space drift or depth blur.
       renderer.render(scene, camera);
