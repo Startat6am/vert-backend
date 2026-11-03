@@ -239,10 +239,6 @@ function makeCaption(camera) {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.shadowColor = 'transparent';
-      ctx.fillStyle = line.side === 'claude' ? '#ff9b75' : '#8dcaff';
-      ctx.font = '700 64px "Pixelify Sans", "Press Start 2P", monospace';
-      ctx.fillText(line.speaker, 1024, 116);
-
       ctx.fillStyle = '#ffffff';
       ctx.font = '700 76px "Pixelify Sans", "Press Start 2P", monospace';
       const words = line.text.split(' ');
